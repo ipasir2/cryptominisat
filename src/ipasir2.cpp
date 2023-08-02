@@ -298,6 +298,7 @@ extern "C" {
                 }
             }
         }
+        return IPASIR_E_OPTION_UNKNOWN;
     }
 
     ipasir2_errorcode ipasir2_add(void* solver, int lit_or_zero) {
