@@ -85,7 +85,7 @@ typedef enum ipasir2_errorcode {
   IPASIR_E_OUT_OF_TIME = 4,
   IPASIR_E_OUT_OF_MEM = 5,
   IPASIR_E_OPTION_UNKNOWN = 6,
-  IPASIR_E_INVALID_CONFIG = 7
+  IPASIR_E_OPTION_INVALID_VALUE = 7
 } ipasir2_errorcode;
 
 
@@ -122,6 +122,12 @@ typedef enum ipasir2_option_type {
     INT = 0,
     FLOAT = 1
 } ipasir2_option_type;
+
+typedef union ipasir2_option_value {
+    int _int;
+    float _flt;
+} ipasir2_option_value;
+
 typedef struct ipasir2_option {
     /// identifier for the option
     char const* name;
@@ -130,10 +136,10 @@ typedef struct ipasir2_option {
     ipasir2_option_type type;
 
     /// @brief minimum value
-    union { int _int; float _flt; } minimum;
+    ipasir2_option_value min;
 
     /// @brief maximum value
-    union { int _int; float _flt; } maximum;
+    ipasir2_option_value max;
 } ipasir2_option;
 
 
