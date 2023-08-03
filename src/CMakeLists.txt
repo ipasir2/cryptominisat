@@ -308,6 +308,7 @@ endif()
 if (IPASIR)
     add_library(ipasircryptominisat5
         ipasir.cpp
+        ipasir2.cpp
         ${cryptoms_lib_files}
         cryptominisat.cpp
     )
