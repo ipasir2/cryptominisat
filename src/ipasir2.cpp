@@ -179,7 +179,7 @@ public:
     }
 
     int solve() {
-        CMSat::lbool ret = solver->solve(&assumptions);
+        CMSat::lbool ret = solver->solve_with_assumptions(&assumptions);
         assumptions.clear();
         std::fill(is_failed_assumption.begin(), is_failed_assumption.end(), 0);
 
@@ -275,9 +275,9 @@ extern "C" {
     }
 
     ipasir2_errorcode ipasir2_set_option(void* solver, const char* name, ipasir2_option_value value) {
-        ipasir2_option* options;
+        const ipasir2_option* options;
         ipasir2_options(solver, &options);
-        for (ipasir2_option* opt = options; opt != 0; ++opt) {
+        for (const ipasir2_option* opt = options; opt != 0; ++opt) {
             if (strcmp(opt->name, name) == 0) {
                 if (opt->type == ipasir2_option_type::INT) {
                     if (value._int < opt->min._int || value._int > opt->max._int) {
@@ -335,7 +335,7 @@ extern "C" {
     }
 
     // TODO
-    ipasir2_errorcode ipasir2_assignment(void* solver, int32_t* assignment) {
+    ipasir2_errorcode ipasir2_assignment(void* solver, int32_t index, int32_t* lit) {
         return IPASIR_E_UNSUPPORTED;
     }
 
