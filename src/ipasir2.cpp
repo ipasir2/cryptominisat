@@ -36,6 +36,9 @@ IN THE SOFTWARE.
 #include "constants.h"
 
 class SolverWrapper {
+    CMSat::SolverConf conf;
+    std::atomic<bool> terminate;
+
     CMSat::Solver* solver;
 
     std::vector<CMSat::Lit> assumptions;
@@ -63,8 +66,8 @@ class SolverWrapper {
     }
 
 public:
-    SolverWrapper() : assumptions(), clause(), state(STATE_INPUT) {
-        solver = new CMSat::Solver;
+    SolverWrapper() : conf(), terminate(), assumptions(), clause(), state(STATE_INPUT) {
+        solver = new CMSat::Solver(&conf, &terminate);
     }
 
     ~SolverWrapper() {
