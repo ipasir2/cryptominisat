@@ -36,7 +36,7 @@ IN THE SOFTWARE.
 #include "constants.h"
 
 class SolverWrapper {
-    CMSat::SolverConf conf;
+    CMSat::SolverConf* conf;
     std::atomic<bool> terminate;
 
     CMSat::Solver* solver;
@@ -67,7 +67,8 @@ class SolverWrapper {
 
 public:
     SolverWrapper() : conf(), terminate(), assumptions(), clause(), state(STATE_INPUT) {
-        solver = new CMSat::Solver(&conf, &terminate);
+        conf = new CMSat::SolverConf();
+        solver = new CMSat::Solver(conf, &terminate);
     }
 
     ~SolverWrapper() {
@@ -75,86 +76,82 @@ public:
     }
 
     bool configure(const char* name, int value) {
-        CMSat::SolverConf conf = solver->getConf();
         if (strcmp(name, "branch_strategy_setup") == 0) {
             switch (value) {
                 case 0: 
-                    conf.branch_strategy_setup = "vsids";
+                    conf->branch_strategy_setup.assign("vsids");
                     break;
                 case 1:
-                    conf.branch_strategy_setup = "vmtf";
+                    conf->branch_strategy_setup.assign("vmtf");
                     break;
                 case 2:
-                    conf.branch_strategy_setup = "rand";
+                    conf->branch_strategy_setup.assign("rand");
                     break;
                 case 3:
-                    conf.branch_strategy_setup = "vmtf+vsids";
+                    conf->branch_strategy_setup.assign("vmtf+vsids");
                     break;
             }
         }
         else if (strcmp(name, "restartType") == 0) {
-            conf.restartType = CMSat::Restart(value);
+            conf->restartType = CMSat::Restart(value);
         }
         else if (strcmp(name, "polarity_mode") == 0) {
-            conf.polarity_mode = CMSat::PolarityMode(value);
+            conf->polarity_mode = CMSat::PolarityMode(value);
         }
         else if (strcmp(name, "glue_put_lev0_if_below_or_eq") == 0) {
-            conf.glue_put_lev0_if_below_or_eq = value;
+            conf->glue_put_lev0_if_below_or_eq = value;
         }
         else if (strcmp(name, "glue_put_lev1_if_below_or_eq") == 0) {
-            conf.glue_put_lev1_if_below_or_eq = value;
+            conf->glue_put_lev1_if_below_or_eq = value;
         }
         else if (strcmp(name, "every_lev1_reduce") == 0) {
-            conf.every_lev1_reduce = value;
+            conf->every_lev1_reduce = value;
         }
         else if (strcmp(name, "every_lev2_reduce") == 0) {
-            conf.every_lev2_reduce = value;
+            conf->every_lev2_reduce = value;
         }
         else if (strcmp(name, "do_bva") == 0) {
-            conf.do_bva = value;
+            conf->do_bva = value;
         }
         else if (strcmp(name, "max_temp_lev2_learnt_clauses") == 0) {
-            conf.max_temp_lev2_learnt_clauses = value;
+            conf->max_temp_lev2_learnt_clauses = value;
         }
         else if (strcmp(name, "never_stop_search") == 0) {
-            conf.never_stop_search = value;
+            conf->never_stop_search = value;
         }
         else if (strcmp(name, "doMinimRedMoreMore") == 0) {
-            conf.doMinimRedMoreMore = value;
+            conf->doMinimRedMoreMore = value;
         }
         else if (strcmp(name, "max_num_lits_more_more_red_min") == 0) {
-            conf.max_num_lits_more_more_red_min = value;
+            conf->max_num_lits_more_more_red_min = value;
         }
         else if (strcmp(name, "max_glue_more_minim") == 0) {
-            conf.max_glue_more_minim = value;
+            conf->max_glue_more_minim = value;
         }
         else if (strcmp(name, "orig_global_timeout_multiplier") == 0) {
-            conf.orig_global_timeout_multiplier = value;
+            conf->orig_global_timeout_multiplier = value;
         }
         else if (strcmp(name, "more_red_minim_limit_binary") == 0) {
-            conf.more_red_minim_limit_binary = value;
+            conf->more_red_minim_limit_binary = value;
         }
         else if (strcmp(name, "restart_first") == 0) {
-            conf.restart_first = value;
+            conf->restart_first = value;
         }
-        solver->setConf(conf);
     }
 
     bool configure(const char* name, float value) {
-        CMSat::SolverConf conf = solver->getConf();
         if (strcmp(name, "varElimRatioPerIter") == 0) {
-            conf.varElimRatioPerIter = value;
+            conf->varElimRatioPerIter = value;
         }
         else if (strcmp(name, "inc_max_temp_lev2_red_cls") == 0) {
-            conf.inc_max_temp_lev2_red_cls = value;
+            conf->inc_max_temp_lev2_red_cls = value;
         }
         else if (strcmp(name, "num_conflicts_of_search_inc") == 0) {
-            conf.num_conflicts_of_search_inc = value;
+            conf->num_conflicts_of_search_inc = value;
         }
         else if (strcmp(name, "restart_inc") == 0) {
-            conf.restart_inc = value;
+            conf->restart_inc = value;
         }
-        solver->setConf(conf);
     }
 
     void add(int32_t lit) {
