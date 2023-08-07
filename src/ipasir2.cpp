@@ -75,7 +75,7 @@ public:
         delete solver;
     }
 
-    bool configure(const char* name, int value) {
+    bool configure(const char* name, int64_t value) {
         if (strcmp(name, "branch_strategy_setup") == 0) {
             switch (value) {
                 case 0: 
@@ -137,20 +137,17 @@ public:
         else if (strcmp(name, "restart_first") == 0) {
             conf->restart_first = value;
         }
-    }
-
-    bool configure(const char* name, float value) {
-        if (strcmp(name, "varElimRatioPerIter") == 0) {
-            conf->varElimRatioPerIter = value;
+        else if (strcmp(name, "varElimRatioPerIter") == 0) {
+            conf->varElimRatioPerIter = (double)value / 100.0;
         }
         else if (strcmp(name, "inc_max_temp_lev2_red_cls") == 0) {
-            conf->inc_max_temp_lev2_red_cls = value;
+            conf->inc_max_temp_lev2_red_cls = (double)value / 100.0;
         }
         else if (strcmp(name, "num_conflicts_of_search_inc") == 0) {
-            conf->num_conflicts_of_search_inc = value;
+            conf->num_conflicts_of_search_inc = (double)value / 100.0;
         }
         else if (strcmp(name, "restart_inc") == 0) {
-            conf->restart_inc = value;
+            conf->restart_inc = (double)value / 100.0;
         }
     }
 
@@ -249,53 +246,40 @@ extern "C" {
 
     ipasir2_errorcode ipasir2_options(void* solver, ipasir2_option const** options) {    
         ipasir2_option* solver_options = new ipasir2_option[21];
-        solver_options[0] = { "branch_strategy_setup", ipasir2_option_type::INT, 0, 3 };
-        solver_options[1] = { "varElimRatioPerIter", ipasir2_option_type::FLOAT, {._flt=0.1}, {._flt=1.0} };
-        solver_options[2] = { "restartType", ipasir2_option_type::INT, 0, 4 };
-        solver_options[3] = { "polarity_mode", ipasir2_option_type::INT, 0, 7 };
-        solver_options[4] = { "inc_max_temp_lev2_red_cls", ipasir2_option_type::FLOAT, {._flt=1.0}, {._flt=.04} };
-        solver_options[5] = { "glue_put_lev0_if_below_or_eq", ipasir2_option_type::INT, 0, 4 };
-        solver_options[6] = { "glue_put_lev1_if_below_or_eq", ipasir2_option_type::INT, 0, 6 };
-        solver_options[7] = { "every_lev1_reduce", ipasir2_option_type::INT, 1, 10000 };
-        solver_options[8] = { "every_lev2_reduce", ipasir2_option_type::INT, 1, 15000 };
-        solver_options[9] = { "do_bva", ipasir2_option_type::INT, 0, 1 };
-        solver_options[10] = { "max_temp_lev2_learnt_clauses", ipasir2_option_type::INT, 10000, 30000 };
-        solver_options[11] = { "never_stop_search", ipasir2_option_type::INT, 0, 1 };
-        solver_options[12] = { "doMinimRedMoreMore", ipasir2_option_type::INT, 0, 2 };
-        solver_options[13] = { "max_num_lits_more_more_red_min", ipasir2_option_type::INT, 0, 20 };
-        solver_options[14] = { "max_glue_more_minim", ipasir2_option_type::INT, 0, 4 };
-        solver_options[15] = { "orig_global_timeout_multiplier", ipasir2_option_type::INT, 0, 5 };
-        solver_options[16] = { "num_conflicts_of_search_inc", ipasir2_option_type::FLOAT, {._flt=1.0}, {._flt=1.15} };
-        solver_options[17] = { "more_red_minim_limit_binary", ipasir2_option_type::INT, 0, 600 };
-        solver_options[18] = { "restart_inc", ipasir2_option_type::FLOAT, {._flt=1.1}, {._flt=1.5} };
-        solver_options[19] = { "restart_first", ipasir2_option_type::INT, 100, 500 };
+        solver_options[0] = { "branch_strategy_setup", 0, 3, IPASIR2_STATE_CONFIG, true };
+        solver_options[1] = { "varElimRatioPerIter", 10, 100, IPASIR2_STATE_CONFIG, true }; // %
+        solver_options[2] = { "restartType", 0, 4, IPASIR2_STATE_CONFIG, true };
+        solver_options[3] = { "polarity_mode", 0, 7, IPASIR2_STATE_CONFIG, true };
+        solver_options[4] = { "inc_max_temp_lev2_red_cls", 4, 100, IPASIR2_STATE_CONFIG, true }; // %
+        solver_options[5] = { "glue_put_lev0_if_below_or_eq", 0, 4, IPASIR2_STATE_CONFIG, true };
+        solver_options[6] = { "glue_put_lev1_if_below_or_eq", 0, 6, IPASIR2_STATE_CONFIG, true };
+        solver_options[7] = { "every_lev1_reduce", 1, 10000, IPASIR2_STATE_CONFIG, true };
+        solver_options[8] = { "every_lev2_reduce", 1, 15000, IPASIR2_STATE_CONFIG, true };
+        solver_options[9] = { "do_bva", 0, 1, IPASIR2_STATE_CONFIG, true };
+        solver_options[10] = { "max_temp_lev2_learnt_clauses", 10000, 30000, IPASIR2_STATE_CONFIG, true };
+        solver_options[11] = { "never_stop_search", 0, 1, IPASIR2_STATE_CONFIG, true };
+        solver_options[12] = { "doMinimRedMoreMore", 0, 2, IPASIR2_STATE_CONFIG, true };
+        solver_options[13] = { "max_num_lits_more_more_red_min", 0, 20, IPASIR2_STATE_CONFIG, true };
+        solver_options[14] = { "max_glue_more_minim", 0, 4, IPASIR2_STATE_CONFIG, true };
+        solver_options[15] = { "orig_global_timeout_multiplier", 0, 5, IPASIR2_STATE_CONFIG, true };
+        solver_options[16] = { "num_conflicts_of_search_inc", 100, 115, IPASIR2_STATE_CONFIG, true }; // %
+        solver_options[17] = { "more_red_minim_limit_binary", 0, 600, IPASIR2_STATE_CONFIG, true };
+        solver_options[18] = { "restart_inc", 110, 150, IPASIR2_STATE_CONFIG, true }; // %
+        solver_options[19] = { "restart_first", 100, 500, IPASIR2_STATE_CONFIG, true };
         solver_options[20] = { 0 };
         *options = solver_options;
         return IPASIR_E_OK;
     }
 
-    ipasir2_errorcode ipasir2_set_option(void* solver, const char* name, ipasir2_option_value value) {
+    ipasir2_errorcode ipasir2_set_option(void* solver, const char* name, int64_t value) {
         const ipasir2_option* options;
         ipasir2_options(solver, &options);
         for (const ipasir2_option* opt = options; opt != 0; ++opt) {
             if (strcmp(opt->name, name) == 0) {
-                if (opt->type == ipasir2_option_type::INT) {
-                    if (value._int < opt->min._int || value._int > opt->max._int) {
-                        return IPASIR_E_OPTION_INVALID_VALUE;
-                    }
-                    ((SolverWrapper*)solver)->configure(name, value._int);
-                    return IPASIR_E_OK;
-                }
-                else if (opt->type == ipasir2_option_type::FLOAT) {
-                    if (value._flt < opt->min._flt || value._flt > opt->max._flt) {
-                        return IPASIR_E_OPTION_INVALID_VALUE;
-                    }
-                    ((SolverWrapper*)solver)->configure(name, value._flt);
-                    return IPASIR_E_OK;
-                }
-                else {
+                if (value < opt->min || value > opt->max) {
                     return IPASIR_E_OPTION_INVALID_VALUE;
                 }
+                ((SolverWrapper*)solver)->configure(name, value);
             }
         }
         return IPASIR_E_OPTION_UNKNOWN;
@@ -329,26 +313,27 @@ extern "C" {
         return IPASIR_E_OK;
     }
 
-    // TODO
-    ipasir2_errorcode ipasir2_assignment_size(void* solver, int32_t* size) {
-        return IPASIR_E_UNSUPPORTED;
-    }
-
-    // TODO
-    ipasir2_errorcode ipasir2_assignment(void* solver, int32_t index, int32_t* lit) {
-        return IPASIR_E_UNSUPPORTED;
-    }
-
     ipasir2_errorcode ipasir2_set_terminate(void* solver, void* state, int (*terminate)(void* state)) {
         return IPASIR_E_UNSUPPORTED;
     }
 
-    ipasir2_errorcode ipasir2_set_learn(void* solver, void* state, void (*learn)(void* state, int* clause)) {
+    ipasir2_errorcode ipasir2_set_learn(void* solver, void* state, 
+            void (*learned)(void* state, int32_t const* clause)) {
         return IPASIR_E_UNSUPPORTED;
     }
 
-    // TODO
-    ipasir2_errorcode ipasir2_set_import_redundant_clause(void* solver, void* state, void (*import)(void* state, int32_t** clause)) {
+    ipasir2_errorcode ipasir2_set_notify_assignment(void* solver, void* data, 
+            void (*notify)(void* data, int32_t const* assigned, int32_t const* backtrack, int8_t const* is_decision)) {
+        return IPASIR_E_UNSUPPORTED;
+    }
+
+    ipasir2_errorcode ipasir2_set_import_redundant_clause(void* solver, void* data, 
+            int32_t const* (*import)(void* data)) {
+        return IPASIR_E_UNSUPPORTED;
+    }
+
+    ipasir2_errorcode ipasir2_set_import_irredundant_clause(void* solver, void* data, 
+            int32_t* allowed, int32_t const* (*import)(void* data)) {
         return IPASIR_E_UNSUPPORTED;
     }
 
