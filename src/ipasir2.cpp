@@ -26,6 +26,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 ***********************************************/
 
+#include "ipasir2.h"
 #include "cryptominisat.h"
 #include "solverconf.h"
 #include "solver.h"
@@ -46,11 +47,7 @@ class SolverWrapper {
 
     std::vector<uint8_t> is_failed_assumption;
 
-    enum solver_state {
-        STATE_INPUT,
-        STATE_SAT,
-        STATE_UNSAT,
-    } state;
+    ipasir2_state state;
 
     void createVarIfNotExists(int32_t lit) {
         if (abs(lit) > solver->nVars()) {
@@ -66,16 +63,19 @@ class SolverWrapper {
     }
 
 public:
-    SolverWrapper() : conf(), terminate(), assumptions(), clause(), state(STATE_INPUT) {
+    SolverWrapper() : conf(), terminate(), assumptions(), clause(), state(IPASIR2_STATE_CONFIG) {
         conf = new CMSat::SolverConf();
-        solver = new CMSat::Solver(conf, &terminate);
+        solver = nullptr;
     }
 
     ~SolverWrapper() {
         delete solver;
     }
 
-    bool configure(const char* name, int64_t value) {
+    ipasir2_errorcode configure(const char* name, int64_t value) {
+        if (state != IPASIR2_STATE_CONFIG) {
+            return IPASIR_E_INVALID_STATE;
+        }
         if (strcmp(name, "branch_strategy_setup") == 0) {
             switch (value) {
                 case 0: 
@@ -91,71 +91,97 @@ public:
                     conf->branch_strategy_setup.assign("vmtf+vsids");
                     break;
             }
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "restartType") == 0) {
             conf->restartType = CMSat::Restart(value);
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "polarity_mode") == 0) {
             conf->polarity_mode = CMSat::PolarityMode(value);
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "glue_put_lev0_if_below_or_eq") == 0) {
             conf->glue_put_lev0_if_below_or_eq = value;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "glue_put_lev1_if_below_or_eq") == 0) {
             conf->glue_put_lev1_if_below_or_eq = value;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "every_lev1_reduce") == 0) {
             conf->every_lev1_reduce = value;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "every_lev2_reduce") == 0) {
             conf->every_lev2_reduce = value;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "do_bva") == 0) {
             conf->do_bva = value;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "max_temp_lev2_learnt_clauses") == 0) {
             conf->max_temp_lev2_learnt_clauses = value;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "never_stop_search") == 0) {
             conf->never_stop_search = value;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "doMinimRedMoreMore") == 0) {
             conf->doMinimRedMoreMore = value;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "max_num_lits_more_more_red_min") == 0) {
             conf->max_num_lits_more_more_red_min = value;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "max_glue_more_minim") == 0) {
             conf->max_glue_more_minim = value;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "orig_global_timeout_multiplier") == 0) {
             conf->orig_global_timeout_multiplier = value;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "more_red_minim_limit_binary") == 0) {
             conf->more_red_minim_limit_binary = value;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "restart_first") == 0) {
             conf->restart_first = value;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "varElimRatioPerIter") == 0) {
             conf->varElimRatioPerIter = (double)value / 100.0;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "inc_max_temp_lev2_red_cls") == 0) {
             conf->inc_max_temp_lev2_red_cls = (double)value / 100.0;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "num_conflicts_of_search_inc") == 0) {
             conf->num_conflicts_of_search_inc = (double)value / 100.0;
+            return IPASIR_E_OK;
         }
         else if (strcmp(name, "restart_inc") == 0) {
             conf->restart_inc = (double)value / 100.0;
+            return IPASIR_E_OK;
+        }
+        else {
+            return IPASIR_E_OPTION_UNKNOWN;
         }
     }
 
     void add(int32_t lit) {
-        if (state == STATE_UNSAT) {
+        if (state == IPASIR2_STATE_UNSAT) {
             std::fill(is_failed_assumption.begin(), is_failed_assumption.end(), 0);
         }
-        state = STATE_INPUT;
+        else if (solver == nullptr) {
+            solver = new CMSat::Solver(conf, &terminate);
+        }
+        state = IPASIR2_STATE_INPUT;
         createVarIfNotExists(lit);
         if (lit == 0) {
             solver->add_clause_outside(clause);
@@ -167,39 +193,46 @@ public:
     }
 
     void assume(int32_t lit) {
-        if (state == STATE_UNSAT) {
+        if (state == IPASIR2_STATE_UNSAT) {
             std::fill(is_failed_assumption.begin(), is_failed_assumption.end(), 0);
         }
-        state = STATE_INPUT;
+        else if (solver == nullptr) {
+            solver = new CMSat::Solver(conf, &terminate);
+        }
+        state = IPASIR2_STATE_INPUT;
         createVarIfNotExists(lit);
         assumptions.push_back(toCMSatLit(lit));
     }
 
     int solve() {
+        if (solver == nullptr) {
+            solver = new CMSat::Solver(conf, &terminate);
+            state = IPASIR2_STATE_SOLVING;
+        }
         CMSat::lbool ret = solver->solve_with_assumptions(&assumptions);
         assumptions.clear();
         std::fill(is_failed_assumption.begin(), is_failed_assumption.end(), 0);
 
         if (ret == CMSat::l_True) {
-            state = STATE_SAT;
+            state = IPASIR2_STATE_SAT;
             return 10;
         }
         else if (ret == CMSat::l_False) {
             for (CMSat::Lit failed : solver->get_final_conflict()) {
                 is_failed_assumption[failed.toInt()] = 1;
             }
-            state = STATE_UNSAT;
+            state = IPASIR2_STATE_UNSAT;
             return 20;
         }
         else if (ret == CMSat::l_Undef) {
-            state = STATE_INPUT;
+            state = IPASIR2_STATE_INPUT;
             return 0;
         }
         return -1;
     }
 
     int val(int32_t lit) {
-        if (state != STATE_SAT) {
+        if (state != IPASIR2_STATE_SAT) {
             return 0;
         }
         CMSat::lbool res = solver->get_model()[abs(lit)-1];
@@ -212,7 +245,7 @@ public:
     }
 
     int failed(int32_t lit) {
-        if (state != STATE_UNSAT) {
+        if (state != IPASIR2_STATE_UNSAT) {
             return 0;
         }
         if (is_failed_assumption[toCMSatLit(-lit).toInt()]) {
@@ -223,7 +256,6 @@ public:
 };
 
 extern "C" {
-    #include "ipasir2.h"
 
     ipasir2_errorcode ipasir2_signature(const char** signature) {
         static char tmp[200];
@@ -279,7 +311,7 @@ extern "C" {
                 if (value < opt->min || value > opt->max) {
                     return IPASIR_E_OPTION_INVALID_VALUE;
                 }
-                ((SolverWrapper*)solver)->configure(name, value);
+                return ((SolverWrapper*)solver)->configure(name, value);
             }
         }
         return IPASIR_E_OPTION_UNKNOWN;
