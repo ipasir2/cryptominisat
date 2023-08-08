@@ -816,6 +816,7 @@ endif()
 set(MY_TARGETS cryptominisat5)
 if (IPASIR)
     set(MY_TARGETS ${MY_TARGETS} ipasircryptominisat5)
+    target_compile_definitions(ipasircryptominisat5 PUBLIC IPASIR_SHARED_LIB)
 endif()
 export(
     TARGETS ${MY_TARGETS}
