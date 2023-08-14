@@ -303,7 +303,7 @@ extern "C" {
         return IPASIR2_E_OK;
     }
 
-    ipasir2_errorcode ipasir2_set_option(void* solver, const char* name, int64_t value) {
+    ipasir2_errorcode ipasir2_set_option(void* solver, const char* name, int64_t index, int64_t value) {
         const ipasir2_option* options;
         ipasir2_options(solver, &options);
         for (const ipasir2_option* opt = options; opt != 0; ++opt) {
