@@ -350,12 +350,12 @@ extern "C" {
         return IPASIR2_E_UNSUPPORTED;
     }
 
-    ipasir2_errorcode ipasir2_set_export(void* solver, void* state, 
+    ipasir2_errorcode ipasir2_set_export(void* solver, void* state, int32_t max_length,
             void (*callback)(void* state, int32_t const* clause)) {
         return IPASIR2_E_UNSUPPORTED;
     }
 
-    ipasir2_errorcode ipasir2_set_import(void* solver, void* data, 
+    ipasir2_errorcode ipasir2_set_import(void* solver, void* data, ipasir2_pledge pledge, 
             int32_t const* (*callback)(void* data)) {
         return IPASIR2_E_UNSUPPORTED;
     }
