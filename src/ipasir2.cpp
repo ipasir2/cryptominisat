@@ -72,106 +72,12 @@ public:
         delete solver;
     }
 
-    ipasir2_errorcode configure(const char* name, int64_t value) {
-        if (state != IPASIR2_S_CONFIG) {
-            return IPASIR2_E_INVALID_STATE;
-        }
-        if (strcmp(name, "branch_strategy_setup") == 0) {
-            switch (value) {
-                case 0: 
-                    conf->branch_strategy_setup.assign("vsids");
-                    break;
-                case 1:
-                    conf->branch_strategy_setup.assign("vmtf");
-                    break;
-                case 2:
-                    conf->branch_strategy_setup.assign("rand");
-                    break;
-                case 3:
-                    conf->branch_strategy_setup.assign("vmtf+vsids");
-                    break;
-            }
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "restartType") == 0) {
-            conf->restartType = CMSat::Restart(value);
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "polarity_mode") == 0) {
-            conf->polarity_mode = CMSat::PolarityMode(value);
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "glue_put_lev0_if_below_or_eq") == 0) {
-            conf->glue_put_lev0_if_below_or_eq = value;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "glue_put_lev1_if_below_or_eq") == 0) {
-            conf->glue_put_lev1_if_below_or_eq = value;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "every_lev1_reduce") == 0) {
-            conf->every_lev1_reduce = value;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "every_lev2_reduce") == 0) {
-            conf->every_lev2_reduce = value;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "do_bva") == 0) {
-            conf->do_bva = value;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "max_temp_lev2_learnt_clauses") == 0) {
-            conf->max_temp_lev2_learnt_clauses = value;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "never_stop_search") == 0) {
-            conf->never_stop_search = value;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "doMinimRedMoreMore") == 0) {
-            conf->doMinimRedMoreMore = value;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "max_num_lits_more_more_red_min") == 0) {
-            conf->max_num_lits_more_more_red_min = value;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "max_glue_more_minim") == 0) {
-            conf->max_glue_more_minim = value;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "orig_global_timeout_multiplier") == 0) {
-            conf->orig_global_timeout_multiplier = value;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "more_red_minim_limit_binary") == 0) {
-            conf->more_red_minim_limit_binary = value;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "restart_first") == 0) {
-            conf->restart_first = value;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "varElimRatioPerIter") == 0) {
-            conf->varElimRatioPerIter = (double)value / 100.0;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "inc_max_temp_lev2_red_cls") == 0) {
-            conf->inc_max_temp_lev2_red_cls = (double)value / 100.0;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "num_conflicts_of_search_inc") == 0) {
-            conf->num_conflicts_of_search_inc = (double)value / 100.0;
-            return IPASIR2_E_OK;
-        }
-        else if (strcmp(name, "restart_inc") == 0) {
-            conf->restart_inc = (double)value / 100.0;
-            return IPASIR2_E_OK;
-        }
-        else {
-            return IPASIR2_E_OPTION_UNKNOWN;
-        }
+    CMSat::SolverConf* getConf() {
+        return conf;
+    }
+
+    ipasir2_state getState() {
+        return state;
     }
 
     void add(int32_t lit) {
@@ -255,6 +161,126 @@ public:
     }
 };
 
+
+ipasir2_errorcode cms_set_branch_strategy(SolverWrapper* solver, int64_t value) {
+    if (solver->getState() != IPASIR2_S_CONFIG) {
+        return IPASIR2_E_INVALID_STATE;
+    }
+    switch (value) {
+        case 0: 
+            solver->getConf()->branch_strategy_setup.assign("vsids");
+            return IPASIR2_E_OK;
+        case 1: 
+            solver->getConf()->branch_strategy_setup.assign("vmtf");
+            return IPASIR2_E_OK;
+        case 2: 
+            solver->getConf()->branch_strategy_setup.assign("rand");
+            return IPASIR2_E_OK;
+        case 3: 
+            solver->getConf()->branch_strategy_setup.assign("vmtf+vsids");
+            return IPASIR2_E_OK;
+        default:
+            return IPASIR2_E_OPTION_INVALID_VALUE;
+    }
+}
+
+ipasir2_errorcode cms_set_restart_type(SolverWrapper* solver, int64_t value) {
+    if (solver->getState() != IPASIR2_S_CONFIG) {
+        return IPASIR2_E_INVALID_STATE;
+    }
+    solver->getConf()->restartType = CMSat::Restart(value);
+    return IPASIR2_E_OK;
+}
+
+ipasir2_errorcode cms_set_polarity_mode(SolverWrapper* solver, int64_t value) {
+    if (solver->getState() != IPASIR2_S_CONFIG) {
+        return IPASIR2_E_INVALID_STATE;
+    }
+    solver->getConf()->polarity_mode = CMSat::PolarityMode(value);
+    return IPASIR2_E_OK;
+}
+
+ipasir2_errorcode cms_set_glue_put_lev0_if_below_or_eq(SolverWrapper* solver, int64_t value) {
+    if (solver->getState() != IPASIR2_S_CONFIG) {
+        return IPASIR2_E_INVALID_STATE;
+    }
+    solver->getConf()->glue_put_lev0_if_below_or_eq = value;
+    return IPASIR2_E_OK;
+}
+
+ipasir2_errorcode cms_set_glue_put_lev1_if_below_or_eq(SolverWrapper* solver, int64_t value) {
+    if (solver->getState() != IPASIR2_S_CONFIG) {
+        return IPASIR2_E_INVALID_STATE;
+    }
+    solver->getConf()->glue_put_lev1_if_below_or_eq = value;
+    return IPASIR2_E_OK;
+}
+
+ipasir2_errorcode cms_set_every_lev1_reduce(SolverWrapper* solver, int64_t value) {
+    if (solver->getState() != IPASIR2_S_CONFIG) {
+        return IPASIR2_E_INVALID_STATE;
+    }
+    solver->getConf()->every_lev1_reduce = value;
+    return IPASIR2_E_OK;
+}
+
+ipasir2_errorcode cms_set_every_lev2_reduce(SolverWrapper* solver, int64_t value) {
+    if (solver->getState() != IPASIR2_S_CONFIG) {
+        return IPASIR2_E_INVALID_STATE;
+    }
+    solver->getConf()->every_lev2_reduce = value;
+    return IPASIR2_E_OK;
+}
+
+ipasir2_errorcode cms_set_do_bva(SolverWrapper* solver, int64_t value) {
+    if (solver->getState() != IPASIR2_S_CONFIG) {
+        return IPASIR2_E_INVALID_STATE;
+    }
+    solver->getConf()->do_bva = value;
+    return IPASIR2_E_OK;
+}
+
+ipasir2_errorcode cms_set_do_minim_reduction_more_more(SolverWrapper* solver, int64_t value) {
+    if (solver->getState() != IPASIR2_S_CONFIG) {
+        return IPASIR2_E_INVALID_STATE;
+    }
+    solver->getConf()->doMinimRedMoreMore = value;
+    return IPASIR2_E_OK;
+}
+
+ipasir2_errorcode cms_set_max_num_lits_more_more_red_min(SolverWrapper* solver, int64_t value) {
+    if (solver->getState() != IPASIR2_S_CONFIG) {
+        return IPASIR2_E_INVALID_STATE;
+    }
+    solver->getConf()->max_num_lits_more_more_red_min = value;
+    return IPASIR2_E_OK;
+}
+
+ipasir2_errorcode cms_set_max_glue_more_minim(SolverWrapper* solver, int64_t value) {
+    if (solver->getState() != IPASIR2_S_CONFIG) {
+        return IPASIR2_E_INVALID_STATE;
+    }    
+    solver->getConf()->max_glue_more_minim = value;
+    return IPASIR2_E_OK;
+}
+
+ipasir2_errorcode cms_set_var_elim_ratio_per_iter(SolverWrapper* solver, int64_t value) {
+    if (solver->getState() != IPASIR2_S_CONFIG) {
+        return IPASIR2_E_INVALID_STATE;    
+    }
+    solver->getConf()->varElimRatioPerIter = (double)value / 100.0;
+    return IPASIR2_E_OK;
+}
+
+ipasir2_errorcode cms_set_inc_max_temp_lev2_red_cls(SolverWrapper* solver, int64_t value) {
+    if (solver->getState() != IPASIR2_S_CONFIG) {
+        return IPASIR2_E_INVALID_STATE;    
+    }
+    solver->getConf()->inc_max_temp_lev2_red_cls = (double)value / 100.0;
+    return IPASIR2_E_OK;
+}
+
+
 extern "C" {
 
     ipasir2_errorcode ipasir2_signature(const char** signature) {
@@ -277,42 +303,30 @@ extern "C" {
     }
 
     ipasir2_errorcode ipasir2_options(void* solver, ipasir2_option const** options) {    
-        ipasir2_option* solver_options = new ipasir2_option[21];
-        solver_options[0] = { "branch_strategy_setup", 0, 3, IPASIR2_S_CONFIG, true, false };
-        solver_options[1] = { "varElimRatioPerIter", 10, 100, IPASIR2_S_CONFIG, true, false }; // %
-        solver_options[2] = { "restartType", 0, 4, IPASIR2_S_CONFIG, true, false };
-        solver_options[3] = { "polarity_mode", 0, 7, IPASIR2_S_CONFIG, true, false };
-        solver_options[4] = { "inc_max_temp_lev2_red_cls", 4, 100, IPASIR2_S_CONFIG, true, false }; // %
-        solver_options[5] = { "glue_put_lev0_if_below_or_eq", 0, 4, IPASIR2_S_CONFIG, true, false };
-        solver_options[6] = { "glue_put_lev1_if_below_or_eq", 0, 6, IPASIR2_S_CONFIG, true, false };
-        solver_options[7] = { "every_lev1_reduce", 1, 10000, IPASIR2_S_CONFIG, true, false };
-        solver_options[8] = { "every_lev2_reduce", 1, 15000, IPASIR2_S_CONFIG, true, false };
-        solver_options[9] = { "do_bva", 0, 1, IPASIR2_S_CONFIG, true, false };
-        solver_options[10] = { "max_temp_lev2_learnt_clauses", 10000, 30000, IPASIR2_S_CONFIG, true, false };
-        solver_options[11] = { "never_stop_search", 0, 1, IPASIR2_S_CONFIG, true, false };
-        solver_options[12] = { "doMinimRedMoreMore", 0, 2, IPASIR2_S_CONFIG, true, false };
-        solver_options[13] = { "max_num_lits_more_more_red_min", 0, 20, IPASIR2_S_CONFIG, true, false };
-        solver_options[14] = { "max_glue_more_minim", 0, 4, IPASIR2_S_CONFIG, true, false };
-        solver_options[15] = { "orig_global_timeout_multiplier", 0, 5, IPASIR2_S_CONFIG, true, false };
-        solver_options[16] = { "num_conflicts_of_search_inc", 100, 115, IPASIR2_S_CONFIG, true, false }; // %
-        solver_options[17] = { "more_red_minim_limit_binary", 0, 600, IPASIR2_S_CONFIG, true, false };
-        solver_options[18] = { "restart_inc", 110, 150, IPASIR2_S_CONFIG, true, false }; // %
-        solver_options[19] = { "restart_first", 100, 500, IPASIR2_S_CONFIG, true, false };
-        solver_options[20] = { 0 };
+        ipasir2_option* solver_options = new ipasir2_option[14];
+        solver_options[0] = { "branch_strategy_setup", 0, 3, IPASIR2_S_CONFIG, true, false, &cms_set_branch_strategy };
+        solver_options[1] = { "varElimRatioPerIter", 10, 100, IPASIR2_S_CONFIG, true, false, &cms_set_var_elim_ratio_per_iter }; // %
+        solver_options[2] = { "restartType", 0, 4, IPASIR2_S_CONFIG, true, false, &cms_set_restart_type };
+        solver_options[3] = { "polarity_mode", 0, 7, IPASIR2_S_CONFIG, true, false, &cms_set_polarity_mode };
+        solver_options[4] = { "inc_max_temp_lev2_red_cls", 4, 100, IPASIR2_S_CONFIG, true, false, &cms_set_inc_max_temp_lev2_red_cls }; // %
+        solver_options[5] = { "glue_put_lev0_if_below_or_eq", 0, 4, IPASIR2_S_CONFIG, true, false, &cms_set_glue_put_lev0_if_below_or_eq };
+        solver_options[6] = { "glue_put_lev1_if_below_or_eq", 0, 6, IPASIR2_S_CONFIG, true, false, &cms_set_glue_put_lev1_if_below_or_eq };
+        solver_options[7] = { "every_lev1_reduce", 1, 10000, IPASIR2_S_CONFIG, true, false, &cms_set_every_lev1_reduce };
+        solver_options[8] = { "every_lev2_reduce", 1, 15000, IPASIR2_S_CONFIG, true, false, &cms_set_every_lev2_reduce };
+        solver_options[9] = { "do_bva", 0, 1, IPASIR2_S_CONFIG, true, false, &cms_set_do_bva };
+        solver_options[10] = { "doMinimRedMoreMore", 0, 2, IPASIR2_S_CONFIG, true, false, &cms_set_do_minim_reduction_more_more };
+        solver_options[11] = { "max_num_lits_more_more_red_min", 0, 20, IPASIR2_S_CONFIG, true, false, &cms_set_max_num_lits_more_more_red_min };
+        solver_options[12] = { "max_glue_more_minim", 0, 4, IPASIR2_S_CONFIG, true, false, &cms_set_max_glue_more_minim };
+        solver_options[13] = { 0 };
         *options = solver_options;
         return IPASIR2_E_OK;
     }
 
-    ipasir2_errorcode ipasir2_set_option(void* solver, const char* name, int64_t index, int64_t value) {
-        const ipasir2_option* options;
-        ipasir2_options(solver, &options);
-        for (const ipasir2_option* opt = options; opt != 0; ++opt) {
-            if (strcmp(opt->name, name) == 0) {
-                if (value < opt->min || value > opt->max) {
-                    return IPASIR2_E_OPTION_INVALID_VALUE;
-                }
-                return ((SolverWrapper*)solver)->configure(name, value);
-            }
+    ipasir2_errorcode ipasir2_set_option(void* solver, ipasir2_option const* opt, int64_t index, int64_t value) {
+        if (opt != nullptr && opt->handle != nullptr) {
+            void (*setter)(SolverWrapper* solver, int64_t value) = (void (*)(SolverWrapper* solver, int64_t value))opt->handle;
+            setter(((SolverWrapper*)solver), value);
+            return IPASIR2_E_OK;
         }
         return IPASIR2_E_OPTION_UNKNOWN;
     }
@@ -355,8 +369,8 @@ extern "C" {
         return IPASIR2_E_UNSUPPORTED;
     }
 
-    ipasir2_errorcode ipasir2_set_import(void* solver, void* data, ipasir2_pledge pledge, 
-            int32_t const* (*callback)(void* data)) {
+    ipasir2_errorcode ipasir2_set_import(void* solver, void* data, ipasir2_redundancy pledge, 
+            void (*callback)(void* data, int32_t const** clause, ipasir2_redundancy* type)) {
         return IPASIR2_E_UNSUPPORTED;
     }
 
