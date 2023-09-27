@@ -257,7 +257,7 @@ extern "C" {
         }
     }
 
-    ipasir2_errorcode ipasir2_add(void* solver, int32_t const* clause, int32_t len) {
+    ipasir2_errorcode ipasir2_add(void* solver, int32_t const* clause, int32_t len, ipasir2_redundancy type) {
         for (int i = 0; i < len; i++) {
             ((SolverWrapper*)solver)->add(clause[i]);
         }
