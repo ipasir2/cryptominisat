@@ -257,7 +257,7 @@ extern "C" {
         }
     }
 
-    ipasir2_errorcode ipasir2_add(void* solver, int32_t* clause, int32_t len) {
+    ipasir2_errorcode ipasir2_add(void* solver, int32_t const* clause, int32_t len) {
         for (int i = 0; i < len; i++) {
             ((SolverWrapper*)solver)->add(clause[i]);
         }
@@ -265,7 +265,7 @@ extern "C" {
         return IPASIR2_E_OK;
     }
 
-    ipasir2_errorcode ipasir2_solve(void* solver, int32_t* result, int32_t* assumps, int32_t len) {
+    ipasir2_errorcode ipasir2_solve(void* solver, int32_t* result, int32_t const* assumps, int32_t len) {
         for (int i = 0; i < len; i++) {
             ((SolverWrapper*)solver)->assume(assumps[i]);
         }
