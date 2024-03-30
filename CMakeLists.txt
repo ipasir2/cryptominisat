@@ -384,6 +384,10 @@ endif()
 
 
 option(IPASIR "Also build IPASIR" OFF)
+if(IPASIR)
+    # Export IPASIR2 symbols in shared library:
+    add_definitions(-DBUILDING_IPASIR_SHARED_LIB)
+endif()
 
 option(LIMITMEM "*Only used for testing*. Limit memory used by CMS through number of variables" OFF)
 if (LIMITMEM)
