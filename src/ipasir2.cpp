@@ -183,56 +183,58 @@ extern "C" {
         return IPASIR2_E_OK;
     }
 
-    ipasir2_errorcode ipasir2_options(void* solver, ipasir2_option const** options) {    
-        ipasir2_option* solver_options = new ipasir2_option[14];
-        solver_options[0] = { "branch_strategy_setup", 0, 3, IPASIR2_S_CONFIG, true, false, 
-                                (const void*) +[] (SolverWrapper* solver, int64_t value) { 
-                                    switch (value) {
-                                        case 0: solver->getConf()->branch_strategy_setup.assign("vsids"); break;
-                                        case 1: solver->getConf()->branch_strategy_setup.assign("vmtf"); break;
-                                        case 2: solver->getConf()->branch_strategy_setup.assign("rand"); break;
-                                        case 3: solver->getConf()->branch_strategy_setup.assign("vmtf+vsids"); break;
-                                    }
-                                }
-                            };
-        solver_options[1] = { "varElimRatioPerIter", 10, 100, IPASIR2_S_CONFIG, true, false, 
-                                (const void*) +[] (SolverWrapper* solver, int64_t value) { solver->getConf()->varElimRatioPerIter = (double)value / 100; }
-                            };
-        solver_options[2] = { "restartType", 0, 4, IPASIR2_S_CONFIG, true, false, 
-                                (const void*) +[] (SolverWrapper* solver, int64_t value) { solver->getConf()->restartType = CMSat::Restart(value); }
-                            };
-        solver_options[3] = { "polarity_mode", 0, 7, IPASIR2_S_CONFIG, true, false, 
-                                (const void*) +[] (SolverWrapper* solver, int64_t value) { solver->getConf()->polarity_mode = CMSat::PolarityMode(value); }
-                            };
-        solver_options[4] = { "inc_max_temp_lev2_red_cls", 4, 100, IPASIR2_S_CONFIG, true, false, 
-                                (const void*) +[] (SolverWrapper* solver, int64_t value) { solver->getConf()->inc_max_temp_lev2_red_cls = (double)value / 100; }
-                            };
-        solver_options[5] = { "glue_put_lev0_if_below_or_eq", 0, 4, IPASIR2_S_CONFIG, true, false, 
-                                (const void*) +[] (SolverWrapper* solver, int64_t value) { solver->getConf()->glue_put_lev0_if_below_or_eq = value; }
-                            };
-        solver_options[6] = { "glue_put_lev1_if_below_or_eq", 0, 6, IPASIR2_S_CONFIG, true, false, 
-                                (const void*) +[] (SolverWrapper* solver, int64_t value) { solver->getConf()->glue_put_lev1_if_below_or_eq = value; }
-                            };
-        solver_options[7] = { "every_lev1_reduce", 1, 10000, IPASIR2_S_CONFIG, true, false, 
-                                (const void*) +[] (SolverWrapper* solver, int64_t value) { solver->getConf()->every_lev1_reduce = value; }
-                            };
-        solver_options[8] = { "every_lev2_reduce", 1, 15000, IPASIR2_S_CONFIG, true, false, 
-                                (const void*) +[] (SolverWrapper* solver, int64_t value) { solver->getConf()->every_lev2_reduce = value; }
-                            };
-        solver_options[9] = { "do_bva", 0, 1, IPASIR2_S_CONFIG, true, false, 
-                                (const void*) +[] (SolverWrapper* solver, int64_t value) { solver->getConf()->do_bva = value; }
-                            };
-        solver_options[10] = { "doMinimRedMoreMore", 0, 2, IPASIR2_S_CONFIG, true, false, 
-                                (const void*) +[] (SolverWrapper* solver, int64_t value) { solver->getConf()->doMinimRedMoreMore = value; }
-                            };
-        solver_options[11] = { "max_num_lits_more_more_red_min", 0, 20, IPASIR2_S_CONFIG, true, false, 
-                                (const void*) +[] (SolverWrapper* solver, int64_t value) { solver->getConf()->max_num_lits_more_more_red_min = value; }
-                            };
-        solver_options[12] = { "max_glue_more_minim", 0, 4, IPASIR2_S_CONFIG, true, false, 
-                                (const void*) +[] (SolverWrapper* solver, int64_t value) { solver->getConf()->max_glue_more_minim = value; }
-                            };
-        solver_options[13] = { 0 };
-        *options = solver_options;
+    ipasir2_errorcode ipasir2_options(void* solver, ipasir2_option const** options) {
+        static std::vector<ipasir2_option> const solver_options = {
+            { "branch_strategy_setup", 0, 3, IPASIR2_S_CONFIG, true, false, 
+                reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { 
+                    switch (value) {
+                        case 0: solver->getConf()->branch_strategy_setup.assign("vsids"); break;
+                        case 1: solver->getConf()->branch_strategy_setup.assign("vmtf"); break;
+                        case 2: solver->getConf()->branch_strategy_setup.assign("rand"); break;
+                        case 3: solver->getConf()->branch_strategy_setup.assign("vmtf+vsids"); break;
+                    }
+                })
+            },
+            { "varElimRatioPerIter", 10, 100, IPASIR2_S_CONFIG, true, false, 
+                reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->varElimRatioPerIter = (double)value / 100; })
+            },
+            { "restartType", 0, 4, IPASIR2_S_CONFIG, true, false, 
+                reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->restartType = CMSat::Restart(value); })
+            },
+            { "polarity_mode", 0, 7, IPASIR2_S_CONFIG, true, false, 
+                reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->polarity_mode = CMSat::PolarityMode(value); })
+            },
+            { "inc_max_temp_lev2_red_cls", 4, 100, IPASIR2_S_CONFIG, true, false, 
+                reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->inc_max_temp_lev2_red_cls = (double)value / 100; })
+            },
+            { "glue_put_lev0_if_below_or_eq", 0, 4, IPASIR2_S_CONFIG, true, false, 
+                reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->glue_put_lev0_if_below_or_eq = value; })
+            },
+            { "glue_put_lev1_if_below_or_eq", 0, 6, IPASIR2_S_CONFIG, true, false, 
+                reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->glue_put_lev1_if_below_or_eq = value; })
+            },
+            { "every_lev1_reduce", 1, 10000, IPASIR2_S_CONFIG, true, false, 
+                reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->every_lev1_reduce = value; })
+            },
+            { "every_lev2_reduce", 1, 15000, IPASIR2_S_CONFIG, true, false, 
+                reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->every_lev2_reduce = value; })
+            },
+            { "do_bva", 0, 1, IPASIR2_S_CONFIG, true, false, 
+                reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->do_bva = value; })
+            },
+            { "doMinimRedMoreMore", 0, 2, IPASIR2_S_CONFIG, true, false, 
+                reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->doMinimRedMoreMore = value; })
+            },
+            { "max_num_lits_more_more_red_min", 0, 20, IPASIR2_S_CONFIG, true, false, 
+                reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->max_num_lits_more_more_red_min = value; })
+            },
+            { "max_glue_more_minim", 0, 4, IPASIR2_S_CONFIG, true, false, 
+                reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->max_glue_more_minim = value; })
+            },
+            { nullptr, 0, 0, IPASIR2_S_CONFIG, 0, 0, nullptr }
+        };
+
+        *options = solver_options.data();
         return IPASIR2_E_OK;
     }
 
