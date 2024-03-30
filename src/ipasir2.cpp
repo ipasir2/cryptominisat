@@ -185,8 +185,8 @@ extern "C" {
 
     ipasir2_errorcode ipasir2_options(void* solver, ipasir2_option const** options) {
         static std::vector<ipasir2_option> const solver_options = {
-            { "branch_strategy_setup", 0, 3, IPASIR2_S_CONFIG, true, false, 
-                reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { 
+            { "branch_strategy_setup", 0, 3, IPASIR2_S_CONFIG, true, false,
+                reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) {
                     switch (value) {
                         case 0: solver->getConf()->branch_strategy_setup.assign("vsids"); break;
                         case 1: solver->getConf()->branch_strategy_setup.assign("vmtf"); break;
@@ -195,40 +195,40 @@ extern "C" {
                     }
                 })
             },
-            { "varElimRatioPerIter", 10, 100, IPASIR2_S_CONFIG, true, false, 
+            { "varElimRatioPerIter", 10, 100, IPASIR2_S_CONFIG, true, false,
                 reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->varElimRatioPerIter = (double)value / 100; })
             },
-            { "restartType", 0, 4, IPASIR2_S_CONFIG, true, false, 
+            { "restartType", 0, 4, IPASIR2_S_CONFIG, true, false,
                 reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->restartType = CMSat::Restart(value); })
             },
-            { "polarity_mode", 0, 7, IPASIR2_S_CONFIG, true, false, 
+            { "polarity_mode", 0, 7, IPASIR2_S_CONFIG, true, false,
                 reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->polarity_mode = CMSat::PolarityMode(value); })
             },
-            { "inc_max_temp_lev2_red_cls", 4, 100, IPASIR2_S_CONFIG, true, false, 
+            { "inc_max_temp_lev2_red_cls", 4, 100, IPASIR2_S_CONFIG, true, false,
                 reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->inc_max_temp_lev2_red_cls = (double)value / 100; })
             },
-            { "glue_put_lev0_if_below_or_eq", 0, 4, IPASIR2_S_CONFIG, true, false, 
+            { "glue_put_lev0_if_below_or_eq", 0, 4, IPASIR2_S_CONFIG, true, false,
                 reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->glue_put_lev0_if_below_or_eq = value; })
             },
-            { "glue_put_lev1_if_below_or_eq", 0, 6, IPASIR2_S_CONFIG, true, false, 
+            { "glue_put_lev1_if_below_or_eq", 0, 6, IPASIR2_S_CONFIG, true, false,
                 reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->glue_put_lev1_if_below_or_eq = value; })
             },
-            { "every_lev1_reduce", 1, 10000, IPASIR2_S_CONFIG, true, false, 
+            { "every_lev1_reduce", 1, 10000, IPASIR2_S_CONFIG, true, false,
                 reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->every_lev1_reduce = value; })
             },
-            { "every_lev2_reduce", 1, 15000, IPASIR2_S_CONFIG, true, false, 
+            { "every_lev2_reduce", 1, 15000, IPASIR2_S_CONFIG, true, false,
                 reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->every_lev2_reduce = value; })
             },
-            { "do_bva", 0, 1, IPASIR2_S_CONFIG, true, false, 
+            { "do_bva", 0, 1, IPASIR2_S_CONFIG, true, false,
                 reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->do_bva = value; })
             },
-            { "doMinimRedMoreMore", 0, 2, IPASIR2_S_CONFIG, true, false, 
+            { "doMinimRedMoreMore", 0, 2, IPASIR2_S_CONFIG, true, false,
                 reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->doMinimRedMoreMore = value; })
             },
-            { "max_num_lits_more_more_red_min", 0, 20, IPASIR2_S_CONFIG, true, false, 
+            { "max_num_lits_more_more_red_min", 0, 20, IPASIR2_S_CONFIG, true, false,
                 reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->max_num_lits_more_more_red_min = value; })
             },
-            { "max_glue_more_minim", 0, 4, IPASIR2_S_CONFIG, true, false, 
+            { "max_glue_more_minim", 0, 4, IPASIR2_S_CONFIG, true, false,
                 reinterpret_cast<void*>(+[] (SolverWrapper* solver, int64_t value) { solver->getConf()->max_glue_more_minim = value; })
             },
             { nullptr, 0, 0, IPASIR2_S_CONFIG, 0, 0, nullptr }
