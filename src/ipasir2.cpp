@@ -302,8 +302,7 @@ extern "C" {
         return IPASIR2_E_UNSUPPORTED;
     }
 
-    ipasir2_errorcode ipasir2_set_notify(void* solver, void* data, 
-            void (*callback)(void* data, int32_t const* assigned, int32_t const* unassigned)) {
+    ipasir2_errorcode ipasir2_set_fixed(void* solver, void* data, void (*callback)(void* data, int32_t fixed)) {
         return IPASIR2_E_UNSUPPORTED;
     }
 
